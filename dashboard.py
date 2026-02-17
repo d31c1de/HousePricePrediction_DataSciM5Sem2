@@ -21,7 +21,7 @@ st.set_page_config(
 # ==========================================
 @st.cache_data
 def load_data():
-    file_path = '/Users/taptat/Documents/me/DataSciSem2project/data/train.csv'
+    file_path = 'data/train.csv'
     
     try:
         df = pd.read_csv(file_path)
