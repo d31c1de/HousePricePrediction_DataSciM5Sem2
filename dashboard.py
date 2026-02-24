@@ -39,7 +39,7 @@ def load_data():
         df[col] = df[col].fillna('None')
 
     # --- Feature Engineering ---
-    # Create PricePerSqFt 
+    # Create PricePerSqFt for Hypothesis 2
     df['PricePerSqFt'] = df['SalePrice'] / df['GrLivArea']
 
     # --- MAP NEIGHBORHOOD NAMES ---
@@ -192,8 +192,8 @@ st.markdown("---")
 c3, c4 = st.columns(2)
 
 with c3:
-    st.markdown("<div style='margin-top: 50px;'></div>", unsafe_allow_html=True)
     st.subheader("💡 Impact of Year Built & Quality on Price")
+    st.markdown("<div style='margin-top: 73px;'></div>", unsafe_allow_html=True)
     fig3, ax3 = plt.subplots(figsize=(10, 6))
     sns.scatterplot(data=filtered_df, x='YearBuilt', y='SalePrice', hue='OverallQual', palette='RdYlGn', alpha=0.7, ax=ax3)
     ax3.set_title('Impact of Year Built and Overall Quality on Sale Price')
@@ -254,7 +254,7 @@ st.markdown("---")
 # ==========================================
 # 5. MACHINE LEARNING SECTION
 # ==========================================
-st.subheader("🤖 Machine Learning Prediction (Random Forest)")
+st.subheader("📊 Model Performance (Actual vs Predicted)")
 
 col_ml1, col_ml2 = st.columns([1, 2])
 
@@ -263,7 +263,7 @@ with col_ml1:
     **Model Information:**
     - **Algorithm:** Random Forest Regressor
     - **Features Used:** Overall Quality, Living Area, Garage Capacity, Total Basement SF, Year Built.
-    - **Purpose:** To predict housing prices based on property characteristics and evaluate the model's accuracy.
+    - **Purpose:** To evaluate how accurately we can predict housing prices based on property characteristics.
     """)
 
 with col_ml2:
@@ -296,8 +296,60 @@ with col_ml2:
     else:
         st.warning("Not enough data points selected to run prediction model. Please adjust your filters.")
 
+st.markdown("---")
+
 # ==========================================
-# 6. RAW DATA
+# 6. INTERACTIVE PRICE PREDICTOR
+# ==========================================
+st.subheader("🔮 Predict Your House Price")
+st.markdown("Enter the characteristics of a house to see its estimated market value based on our Machine Learning model.")
+
+# Train a global model on the full dataset so it's always accurate regardless of sidebar filters
+@st.cache_resource
+def train_global_model():
+    model_features = ['OverallQual', 'GrLivArea', 'GarageCars', 'TotalBsmtSF', 'YearBuilt']
+    X_full = df[model_features].fillna(0)
+    y_full = df['SalePrice']
+    global_rf = RandomForestRegressor(n_estimators=100, max_depth=10, random_state=42)
+    global_rf.fit(X_full, y_full)
+    return global_rf
+
+predictor_model = train_global_model()
+
+# Create input form layout
+p_col1, p_col2, p_col3 = st.columns(3)
+
+with p_col1:
+    user_qual = st.slider("Overall Quality (1-10)", 1, 10, 5)
+    user_area = st.number_input("Living Area (Sq.Ft.)", min_value=300, max_value=10000, value=1500, step=100)
+
+with p_col2:
+    user_garage = st.number_input("Garage Capacity (Cars)", min_value=0, max_value=5, value=2, step=1)
+    user_bsmt = st.number_input("Total Basement (Sq.Ft.)", min_value=0, max_value=5000, value=1000, step=100)
+
+with p_col3:
+    user_year = st.number_input("Year Built", min_value=1800, max_value=2025, value=2000, step=1)
+    st.markdown("<div style='margin-top: 28px;'></div>", unsafe_allow_html=True)
+    predict_button = st.button("Predict Price 🚀", use_container_width=True)
+
+# Run prediction when button is clicked
+if predict_button:
+    user_data = pd.DataFrame({
+        'OverallQual': [user_qual],
+        'GrLivArea': [user_area],
+        'GarageCars': [user_garage],
+        'TotalBsmtSF': [user_bsmt],
+        'YearBuilt': [user_year]
+    })
+    
+    predicted_price = predictor_model.predict(user_data)[0]
+    st.success(f"### Estimated Market Value: ${predicted_price:,.2f}")
+    st.balloons()
+
+st.markdown("---")
+
+# ==========================================
+# 7. RAW DATA
 # ==========================================
 if st.checkbox("Show Raw Data"):
     st.dataframe(filtered_df)
