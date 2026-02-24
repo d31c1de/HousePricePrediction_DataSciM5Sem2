@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
+import time
 
 # ==========================================
 # 1. PAGE CONFIGURATION
@@ -192,8 +193,8 @@ st.markdown("---")
 c3, c4 = st.columns(2)
 
 with c3:
-    st.subheader("💡 Impact of Year Built & Quality on Price")
     st.markdown("<div style='margin-top: 73px;'></div>", unsafe_allow_html=True)
+    st.subheader("💡 Impact of Year Built & Quality on Price")
     fig3, ax3 = plt.subplots(figsize=(10, 6))
     sns.scatterplot(data=filtered_df, x='YearBuilt', y='SalePrice', hue='OverallQual', palette='RdYlGn', alpha=0.7, ax=ax3)
     ax3.set_title('Impact of Year Built and Overall Quality on Sale Price')
@@ -343,8 +344,17 @@ if predict_button:
     })
     
     predicted_price = predictor_model.predict(user_data)[0]
+
+    progress_text = "Operation in progress. Please wait."
+    my_bar = st.progress(0, text=progress_text)
+
+    for percent_complete in range(100):
+        time.sleep(0.01)
+        my_bar.progress(percent_complete + 1, text=progress_text)
+    time.sleep(1)
+    my_bar.empty()
+
     st.success(f"### Estimated Market Value: ${predicted_price:,.2f}")
-    st.balloons()
 
 st.markdown("---")
 
