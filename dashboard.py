@@ -193,7 +193,7 @@ st.markdown("---")
 c3, c4 = st.columns(2)
 
 with c3:
-    st.markdown("<div style='margin-top: 73px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='margin-top: 51px;'></div>", unsafe_allow_html=True)
     st.subheader("💡 Impact of Year Built & Quality on Price")
     fig3, ax3 = plt.subplots(figsize=(10, 6))
     sns.scatterplot(data=filtered_df, x='YearBuilt', y='SalePrice', hue='OverallQual', palette='RdYlGn', alpha=0.7, ax=ax3)
@@ -322,7 +322,7 @@ p_col1, p_col2, p_col3 = st.columns(3)
 
 with p_col1:
     user_qual = st.slider("Overall Quality (1-10)", 1, 10, 5)
-    user_area = st.number_input("Living Area (Sq.Ft.)", min_value=300, max_value=10000, value=1500, step=100)
+    user_area = st.number_input("Living Area (Square Feet)", min_value=300, max_value=10000, value=1500, step=100)
 
 with p_col2:
     user_garage = st.number_input("Garage Capacity (Cars)", min_value=0, max_value=5, value=2, step=1)
